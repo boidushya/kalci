@@ -10,9 +10,6 @@ module.exports = {
   ],
   prefix: "",
   theme: {
-    fontFamily: {
-      sans: ["General Sans", "sans-serif"],
-    },
     container: {
       center: true,
       padding: "2rem",
@@ -21,6 +18,9 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["General Sans", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

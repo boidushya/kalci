@@ -39,6 +39,7 @@ export function TokenRow({
 
   const initialValue = typeBasedHoldings[dataKey]?.token || "";
   const initialAmount = typeBasedHoldings[dataKey]?.balance || 0;
+
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(initialValue);
   const [amount, setAmount] = React.useState(initialAmount);

@@ -6,7 +6,12 @@ type THolding = {
   balance: number;
 };
 
-interface ITokenStore {
+type TAPY = {
+  token: string;
+  apy: number;
+};
+
+export interface ITokenStore {
   holdings: THolding[];
   addHolding: (token: string, balance: number) => void;
   removeHolding: (token: string) => void;
@@ -14,6 +19,46 @@ interface ITokenStore {
   getTotalValue: () => number;
   getBalance: (token: string) => number;
 }
+
+export interface IAPYStore {
+  apyMap: TAPY[];
+  getApy: (token: string) => number;
+  modifyApy: (token: string, apy?: number) => void;
+}
+
+export const useApyStore: () => IAPYStore = create<IAPYStore>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        apyMap: [],
+        getApy: (token: string) => {
+          const apy = get().apyMap.find((a) => a.token === token)?.apy || 0;
+          return apy;
+        },
+        modifyApy: (token: string, apy = 0) => {
+          set((state) => {
+            if (state.apyMap.some((a) => a.token === token)) {
+              return {
+                apyMap: state.apyMap.map((a) => {
+                  if (a.token === token) {
+                    a.apy = apy;
+                  }
+                  return a;
+                }),
+              };
+            }
+            return {
+              apyMap: [...state.apyMap, { token, apy }],
+            };
+          });
+        },
+      }),
+      {
+        name: "KM::ApyStore",
+      }
+    )
+  )
+);
 
 export const useTokenStore: () => ITokenStore = create<ITokenStore>()(
   devtools(

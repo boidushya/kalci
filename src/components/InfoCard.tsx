@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { TokenRow } from "./TokenRow";
-import { useTokenStore } from "@/stores/TokenStore";
+import { useApyStore, useTokenStore } from "@/stores/TokenStore";
 import {
   aggregatedMultiplier,
   calculatePoints,
@@ -12,16 +12,22 @@ import { PlusIcon } from "@radix-ui/react-icons";
 import React from "react";
 import { Input } from "./ui/input";
 import { MinusIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ScrollArea } from "./ui/scroll-area";
+import AnimatedNumbers from "react-animated-numbers";
 
-const Divider = () => <div className="border-t border-border" />;
+const Divider = ({ className }: { className?: string }) => (
+  <div className={cn("border-t border-border", className || "")} />
+);
 
 export function InfoCard() {
   const { getTotalValue, holdings } = useTokenStore();
+  const { apyMap, modifyApy, getApy } = useApyStore();
 
   const liquidity = getTotalValue();
 
-  const totalSupplied = getTotalSupplied(holdings);
-  const totalBorrowed = getTotalBorrowed(holdings);
+  const totalSupplied = getTotalSupplied();
+  const totalBorrowed = getTotalBorrowed();
 
   const initialSupplyRows = holdings.filter((h) => h.balance > 0).length;
   const initialBorrowRows = holdings.filter((h) => h.balance < 0).length;
@@ -33,11 +39,20 @@ export function InfoCard() {
     initialBorrowRows === 0 ? 1 : initialBorrowRows
   );
 
-  console.log(holdings);
+  React.useEffect(() => {
+    holdings.forEach((h) => {
+      getApy(h.token) === 0 && modifyApy(h.token);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [holdings]);
+
+  console.table(holdings);
+
+  console.log(apyMap);
 
   return (
-    <Card className="shadow-xl w-fit">
-      <CardContent className="px-0 py-0">
+    <Card className="max-h-[calc(100vh_-_64px)] overflow-y-auto shadow-xl w-fit">
+      <CardContent className="px-0 py-0 overflow-y-auto">
         <div className="grid grid-cols-none grid-rows-2 md:grid-rows-none md:grid-cols-2">
           <div className="p-0 border-b md:border-r md:border-b-0 border-border ">
             <div className="flex items-center justify-between px-4 my-4">
@@ -69,13 +84,15 @@ export function InfoCard() {
               </div>
             </div>
             <Divider />
-            <div className="px-4 py-6 space-y-4">
-              {Array(supplyRows)
-                .fill(null)
-                .map((_, i) => (
-                  <TokenRow key={i} dataKey={i} />
-                ))}
-            </div>
+            <ScrollArea>
+              <div className="px-4 py-6 space-y-4">
+                {Array(supplyRows)
+                  .fill(null)
+                  .map((_, i) => (
+                    <TokenRow key={i} dataKey={i} />
+                  ))}
+              </div>
+            </ScrollArea>
           </div>
           <div className="p-0">
             <div className="flex items-center justify-between px-4 my-4">
@@ -107,37 +124,124 @@ export function InfoCard() {
               </div>
             </div>
             <Divider />
-            <div className="px-4 py-6 space-y-4">
-              {Array(borrowRows)
-                .fill(null)
-                .map((_, i) => (
-                  <TokenRow key={i} dataKey={i} isBorrow />
-                ))}
-            </div>
+            <ScrollArea>
+              <div className="px-4 py-6 space-y-4 max-h-60">
+                {Array(borrowRows)
+                  .fill(null)
+                  .map((_, i) => (
+                    <TokenRow key={i} dataKey={i} isBorrow />
+                  ))}
+              </div>
+            </ScrollArea>
           </div>
+        </div>
+        <Divider />
+        <div className="p-6 pt-4">
+          <h2 className="mb-4 text-lg font-medium text-muted-foreground">
+            Set APY
+          </h2>
+          <ScrollArea>
+            <div className="grid grid-flow-row grid-cols-3 gap-2 place-items-start">
+              {apyMap.map((a) => (
+                <div
+                  key={a.token}
+                  className="flex items-center justify-between w-full px-4 py-2 text-sm border"
+                >
+                  <h2 className="">{a.token.toUpperCase()}</h2>
+                  <div className="flex items-center justify-center gap-2">
+                    <Input
+                      type="number"
+                      placeholder="APY"
+                      value={a.apy}
+                      onChange={(e) =>
+                        modifyApy(a.token, Number(e.target.value))
+                      }
+                      className="w-16 h-8 text-right"
+                    />
+                    %
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
         </div>
       </CardContent>
       <Divider />
-      <CardFooter className="flex-col py-6 space-y-2">
-        <div className="flex items-center justify-between w-full">
-          <h2 className="text-muted-foreground">Daily Points</h2>
-          <span>{calculatePoints(holdings).toLocaleString()}</span>
+      <CardFooter className="block px-0 space-y-2 text-sm">
+        <div className="grid grid-cols-2 px-6">
+          <div className="py-6 pr-4 space-y-2 border-r">
+            <div className="flex items-center justify-between w-full">
+              <h2 className="text-muted-foreground">Daily Points</h2>
+              <span className="flex font-mono">
+                <AnimatedNumbers
+                  includeComma
+                  transitions={(index) => ({
+                    type: "spring",
+                    duration: 0.2 + index * 0.1,
+                  })}
+                  animateToNumber={calculatePoints()}
+                />
+              </span>
+            </div>
+            <div className="flex items-center justify-between w-full">
+              <h2 className="text-muted-foreground">Boost</h2>
+              <span className="flex font-mono">
+                <AnimatedNumbers
+                  includeComma
+                  transitions={(index) => ({
+                    type: "spring",
+                    duration: 0.2 + index * 0.1,
+                  })}
+                  animateToNumber={Number(aggregatedMultiplier())}
+                />
+              </span>
+            </div>
+          </div>
+          <div className="py-6 pl-4 space-y-2">
+            <div className="flex items-center justify-between w-full">
+              <h2 className="text-muted-foreground">Total Supplied</h2>
+              <span className="flex font-mono">
+                $
+                <AnimatedNumbers
+                  includeComma
+                  transitions={(index) => ({
+                    type: "spring",
+                    duration: 0.2 + index * 0.1,
+                  })}
+                  animateToNumber={totalSupplied}
+                />
+              </span>
+            </div>
+            <div className="flex items-center justify-between w-full">
+              <h2 className="text-muted-foreground">Total Borrowed</h2>
+              <span className="flex font-mono">
+                $
+                <AnimatedNumbers
+                  includeComma
+                  transitions={(index) => ({
+                    type: "spring",
+                    duration: 0.2 + index * 0.1,
+                  })}
+                  animateToNumber={totalBorrowed}
+                />
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center justify-between w-full">
-          <h2 className="text-muted-foreground">Multiplier</h2>
-          <span>{aggregatedMultiplier(holdings)}</span>
-        </div>
-        <div className="flex items-center justify-between w-full">
-          <h2 className="text-muted-foreground">Total Supplied</h2>
-          <span>{totalSupplied.toLocaleString()}</span>
-        </div>
-        <div className="flex items-center justify-between w-full">
-          <h2 className="text-muted-foreground">Total Borrowed</h2>
-          <span>{totalBorrowed.toLocaleString()}</span>
-        </div>
-        <div className="flex items-center justify-between w-full">
+        <Divider className="!my-0" />
+        <div className="flex items-center justify-between w-full px-6 pt-4 text-base">
           <h2 className="text-muted-foreground">Total Available Liquidity</h2>
-          <span>${liquidity.toLocaleString()}</span>
+          <span className="flex font-mono">
+            $
+            <AnimatedNumbers
+              includeComma
+              transitions={(index) => ({
+                type: "spring",
+                duration: 0.2 + index * 0.1,
+              })}
+              animateToNumber={liquidity}
+            />
+          </span>
         </div>
       </CardFooter>
     </Card>
