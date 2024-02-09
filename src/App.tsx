@@ -8,7 +8,7 @@ function App() {
         <h1 className="text-3xl font-bold">🧮</h1>
         <ModeToggle />
       </nav>
-      <div className="grid items-start justify-center h-screen pt-16">
+      <div className="grid items-start justify-center h-screen pt-20">
         <InfoCard />
       </div>
     </main>
