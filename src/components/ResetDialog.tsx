@@ -35,7 +35,7 @@ export function ResetDialog() {
               window.location.reload();
             }}
           >
-            Yes I'm sure
+            Yes I{`'`}m sure
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

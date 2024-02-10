@@ -3,11 +3,12 @@ import { InfoCard } from "./components/InfoCard";
 import { ModeToggle } from "./components/ModeToggle";
 import { ParseDataDialog } from "./components/ParseDataDialog";
 import { Button } from "./components/ui/button";
-import { useParseDialogStore } from "./stores/StateStore";
+import { useParseDialogStore, useTriggerRefresh } from "./stores/StateStore";
 import { ResetDialog } from "./components/ResetDialog";
 
 function App() {
   const { setOpen } = useParseDialogStore();
+  const { refresh } = useTriggerRefresh();
   return (
     <main>
       <nav className="fixed flex items-center justify-between w-full px-6 py-4">
@@ -26,7 +27,7 @@ function App() {
         </div>
       </nav>
       <div className="grid items-start justify-center h-screen pt-20">
-        <InfoCard />
+        {!refresh && <InfoCard />}
       </div>
       <ParseDataDialog />
     </main>
