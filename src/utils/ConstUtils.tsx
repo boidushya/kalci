@@ -191,8 +191,6 @@ export const getTotalDebt = () => {
 export const getTotalSupplied = () => {
   const holdings = tokenStore?.getState().holdings;
 
-  console.log("supply", holdings);
-
   return holdings.reduce((acc, h) => {
     if (h.balance > 0) {
       return acc + h.balance;

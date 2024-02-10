@@ -15,14 +15,18 @@ function App() {
         <h1 className="text-3xl font-bold">🧮</h1>
         <div className="flex items-center gap-2">
           <ResetDialog />
-          <Button
-            variant="outline"
-            onClick={() => setOpen(true)}
-            className="pl-3"
-          >
-            <Sparkles size={14} className="inline-block mr-2 align-middle" />
-            Parse Data
-          </Button>
+          <div className="relative inline-flex group">
+            <div className="absolute transition-all duration-500 inset-full bg-gradient-to-tr from-sky-600/30 via-pink-600/30 to-orange-600/30 rounded blur-lg group-hover:-inset-px" />
+
+            <Button
+              variant="outline"
+              onClick={() => setOpen(true)}
+              className="pl-3 relative"
+            >
+              <Sparkles size={14} className="inline-block mr-2 align-middle" />
+              Parse Data
+            </Button>
+          </div>
           <ModeToggle />
         </div>
       </nav>

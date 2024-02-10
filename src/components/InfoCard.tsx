@@ -29,8 +29,6 @@ export function InfoCard() {
   const totalSupplied = getTotalSupplied();
   const totalBorrowed = getTotalBorrowed();
 
-  console.log(totalSupplied, totalBorrowed);
-
   const initialSupplyRows = holdings.filter((h) => h.balance > 0).length;
   const initialBorrowRows = holdings.filter((h) => h.balance < 0).length;
 
@@ -142,30 +140,36 @@ export function InfoCard() {
             <h2 className="mb-4 text-lg font-medium text-muted-foreground">
               Set APY
             </h2>
-            <ScrollArea>
-              <div className="grid grid-flow-row grid-cols-3 gap-2 place-items-start">
-                {apyMap.map((a) => (
-                  <div
-                    key={a.token}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm border"
-                  >
-                    <h2 className="">{a.token.toUpperCase()}</h2>
-                    <div className="flex items-center justify-center gap-2">
-                      <Input
-                        type="number"
-                        placeholder="APY"
-                        value={a.apy}
-                        onChange={(e) =>
-                          modifyApy(a.token, Number(e.target.value))
-                        }
-                        className="w-16 h-8 text-right"
-                      />
-                      %
+            {apyMap.length !== 0 ? (
+              <ScrollArea>
+                <div className="grid grid-flow-row grid-cols-3 gap-2 place-items-start">
+                  {apyMap.map((a) => (
+                    <div
+                      key={a.token}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm border"
+                    >
+                      <h2 className="">{a.token.toUpperCase()}</h2>
+                      <div className="flex items-center justify-center gap-2">
+                        <Input
+                          type="number"
+                          placeholder="APY"
+                          value={a.apy}
+                          onChange={(e) =>
+                            modifyApy(a.token, Number(e.target.value))
+                          }
+                          className="w-16 h-8 text-right"
+                        />
+                        %
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                Enter tokens to Supplies or Borrows to set custom APY
+              </p>
+            )}
           </div>
         </CardContent>
         <Divider />
