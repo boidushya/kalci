@@ -9,7 +9,6 @@ const apyStore = useApyStore as unknown as { getState: () => IAPYStore };
 const apyStoreState = apyStore?.getState();
 
 const tokenStore = useTokenStore as unknown as { getState: () => ITokenStore };
-const tokenStoreState = tokenStore?.getState();
 
 export const tokens = [
   {
@@ -46,6 +45,12 @@ export const tokens = [
   },
 ];
 
+export const truncate = (str: string, n = 4) => {
+  return str.length > n
+    ? str.slice(0, n - 1) + "..." + str.slice(str.length - n)
+    : str;
+};
+
 const calculateMultiplier = (
   token: { name: string; isSpecial: boolean },
   isBorrow: boolean
@@ -58,7 +63,35 @@ const calculateMultiplier = (
 
 export const calculatePoints = (): number => {
   const getApy = apyStoreState.getApy;
-  const holdings = tokenStoreState.holdings;
+  const holdings = tokenStore?.getState().holdings;
+
+  //   calculate points = (specialGroup) + (normalGroup)
+  //   specialTokenTotal = specialTokenSupply - specialTokenBorrow
+  //   specialGroup = calculateMultiplier(specialTokenTotal) * Math.abs(specialTokenTotal)
+
+  //   normalGroup = Math.abs(normalTokenSupply - normalTokenBorrow)
+
+  const specialTokenTotal = tokens
+    .filter((t) => t.isSpecial)
+    .reduce((acc, t) => {
+      const holding = holdings.find((h) => h.token === t.name);
+      if (!holding) return acc;
+      return acc + holding.balance;
+    }, 0);
+
+  const specialGroup =
+    (specialTokenTotal < 0 ? 3 : 5) * Math.abs(specialTokenTotal);
+
+  const normalGroup = holdings
+    .filter((h) => {
+      const token = tokens.find((t) => t.name === h.token);
+      return token && !token.isSpecial;
+    })
+    .reduce((acc, h) => {
+      return acc + Math.abs(h.balance);
+    }, 0);
+
+  return specialGroup + normalGroup;
 
   return holdings.reduce((acc, h) => {
     const token = tokens.find((t) => t.name === h.token);
@@ -70,7 +103,7 @@ export const calculatePoints = (): number => {
 
     // I might be grossly wrong about this apyBoost calculation, pls fix lol
 
-    const apyBoost = apy > 0 ? 1 + ((isBorrowing ? 1 : -1) * apy) / 100 : 1;
+    const apyBoost = 1 + apy / 100;
     // const apyBoost = apy > 0 ? 1 : 1;
 
     return acc + h.balance * multiplier * apyBoost;
@@ -79,7 +112,7 @@ export const calculatePoints = (): number => {
 
 export const aggregatedMultiplier = () => {
   const getApy = apyStoreState.getApy;
-  const holdings = tokenStoreState.holdings;
+  const holdings = tokenStore?.getState().holdings;
 
   const totalValue = holdings.reduce((acc, h) => {
     const token = tokens.find((t) => t.name === h.token);
@@ -102,7 +135,7 @@ export const aggregatedMultiplier = () => {
 };
 
 export const getTotalBorrowed = () => {
-  const holdings = tokenStoreState.holdings;
+  const holdings = tokenStore?.getState().holdings;
 
   return Math.abs(
     holdings.reduce((acc, h) => {
@@ -115,7 +148,7 @@ export const getTotalBorrowed = () => {
 };
 
 export const getTotalDebt = () => {
-  const holdings = tokenStoreState.holdings;
+  const holdings = tokenStore?.getState().holdings;
   const getApy = apyStoreState.getApy;
 
   // total supplied * supplied APY - total borrowed * borrowed APY
@@ -145,8 +178,8 @@ export const getTotalDebt = () => {
       totalSupplied) *
     100;
 
-  console.log("borrowedAPY", borrowedAPY);
-  console.log("suppliedAPY", suppliedAPY);
+  //   console.log("borrowedAPY", borrowedAPY);
+  //   console.log("suppliedAPY", suppliedAPY);
 
   const totalDebt =
     totalSupplied * (1 + suppliedAPY / 100) -
@@ -156,7 +189,9 @@ export const getTotalDebt = () => {
 };
 
 export const getTotalSupplied = () => {
-  const holdings = tokenStoreState.holdings;
+  const holdings = tokenStore?.getState().holdings;
+
+  console.log("supply", holdings);
 
   return holdings.reduce((acc, h) => {
     if (h.balance > 0) {

@@ -14,6 +14,7 @@ type TAPY = {
 export interface ITokenStore {
   holdings: THolding[];
   addHolding: (token: string, balance: number) => void;
+  forceAddHolding: (token: string, balance: number) => void;
   removeHolding: (token: string) => void;
   modifyHolding: (token: string, balance: number) => void;
   getTotalValue: () => number;
@@ -23,6 +24,7 @@ export interface ITokenStore {
 export interface IAPYStore {
   apyMap: TAPY[];
   getApy: (token: string) => number;
+  forceAddApy: (token: string, apy: number) => void;
   modifyApy: (token: string, apy?: number) => void;
 }
 
@@ -34,6 +36,14 @@ export const useApyStore: () => IAPYStore = create<IAPYStore>()(
         getApy: (token: string) => {
           const apy = get().apyMap.find((a) => a.token === token)?.apy || 0;
           return apy;
+        },
+        forceAddApy: (token: string, apy: number) => {
+          set((state) => ({
+            apyMap: [
+              ...state.apyMap.filter((a) => a.token !== token),
+              { token, apy },
+            ],
+          }));
         },
         modifyApy: (token: string, apy = 0) => {
           set((state) => {
@@ -69,6 +79,16 @@ export const useTokenStore: () => ITokenStore = create<ITokenStore>()(
           set((state) => ({
             holdings: [
               ...state.holdings,
+              {
+                token,
+                balance,
+              },
+            ],
+          })),
+        forceAddHolding: (token: string, balance: number) =>
+          set((state) => ({
+            holdings: [
+              ...state.holdings.filter((h) => h.token !== token),
               {
                 token,
                 balance,
