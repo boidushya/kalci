@@ -16,7 +16,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { useParseDialogStore } from "@/stores/StateStore";
+import { useParseDialogStore, useTriggerRefresh } from "@/stores/StateStore";
 import { useEffect, useState } from "react";
 import { getKaminoData } from "@/utils/SolanaUtils";
 import { Input } from "./ui/input";
@@ -31,6 +31,7 @@ function Content() {
   const { forceAddHolding } = useTokenStore();
   const { forceAddApy } = useApyStore();
   const { setOpen } = useParseDialogStore();
+  const { triggerRefresh } = useTriggerRefresh();
 
   useEffect(() => {
     async function fetchData() {
@@ -73,6 +74,10 @@ function Content() {
           }
         }
         setOpen(false);
+        triggerRefresh();
+      } catch (error) {
+        console.error(error);
+        throw error;
       } finally {
         setIsLoading(false);
       }

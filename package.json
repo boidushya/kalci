@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "@hubbleprotocol/kamino-lending-sdk": "^2.9.1",
@@ -25,6 +25,7 @@
     "clsx": "^2.1.0",
     "cmdk": "^0.2.1",
     "lucide-react": "^0.323.0",
+    "next": "latest",
     "next-themes": "^0.2.1",
     "react": "^18.2.0",
     "react-animated-numbers": "^0.18.0",
@@ -33,7 +34,6 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.0",
-    "vite-plugin-node-polyfills": "^0.20.0",
     "zustand": "^4.5.0"
   },
   "devDependencies": {
@@ -42,14 +42,13 @@
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
-    "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.38.0",
+    "eslint-config-next": "^14.1.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.0.2",
-    "vite": "^4.3.2"
+    "typescript": "^5.0.2"
   }
 }

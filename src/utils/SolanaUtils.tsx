@@ -28,7 +28,7 @@ const getPriceData = async (token: string) => {
 };
 
 const getConnection = () => {
-  const RPC_URL = import.meta.env.VITE_RPC_URL;
+  const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL;
   if (!RPC_URL) {
     throw new Error("RPC_URL is not defined");
   }
