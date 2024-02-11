@@ -72,10 +72,11 @@
   }
   body {
     background-image: radial-gradient(
-      circle at 50% 10%,
-      hsl(var(--primary) / 0.05) 0%,
-      hsl(var(--background) / 0) 100%
-    );
+        circle at 50% 33.33%,
+        hsl(var(--primary) / 0.05) 0%,
+        hsl(var(--background) / 0.75) 75%
+      ),
+      url("/navy.png");
     @apply bg-background text-foreground;
   }
 
