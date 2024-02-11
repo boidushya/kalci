@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://kalc.vercel.app"),
   title: "Kalc",
   description: "Playground for calculating Kamino Points",
   openGraph: {
