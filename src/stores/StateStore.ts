@@ -1,8 +1,9 @@
 import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
 
-export interface IParseDialogStore {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+export interface IPublicKeyStore {
+  value: string;
+  setValue: (value: string) => void;
 }
 
 export interface ITriggerRefresh {
@@ -10,13 +11,20 @@ export interface ITriggerRefresh {
   triggerRefresh: () => void;
 }
 
-export const useParseDialogStore: () => IParseDialogStore =
-  create<IParseDialogStore>()((set) => ({
-    open: false,
-    setOpen: (open: boolean) => {
-      set({ open });
-    },
-  }));
+export const usePublicKeyStore: () => IPublicKeyStore =
+  create<IPublicKeyStore>()(
+    devtools(
+      persist(
+        (set) => ({
+          value: "",
+          setValue: (value: string) => set({ value }),
+        }),
+        {
+          name: "KM::PublicKeyStore",
+        }
+      )
+    )
+  );
 
 export const useTriggerRefresh: () => ITriggerRefresh = create<ITriggerRefresh>(
   (set) => ({

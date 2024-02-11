@@ -1,22 +1,4 @@
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import { useParseDialogStore, useTriggerRefresh } from "@/stores/StateStore";
+import { usePublicKeyStore, useTriggerRefresh } from "@/stores/StateStore";
 import { useEffect, useState } from "react";
 import { getKaminoData } from "@/utils/SolanaUtils";
 import { Input } from "./ui/input";
@@ -24,13 +6,13 @@ import { useApyStore, useTokenStore } from "@/stores/TokenStore";
 import { toast } from "sonner";
 import { tokens, truncate } from "@/utils/ConstUtils";
 
-function Content() {
-  const [walletAddress, setWalletAddress] = useState("");
+export function ParseDataDialog() {
   const [isLoading, setIsLoading] = useState(false);
 
+  const { value: walletAddress, setValue: setWalletAddress } =
+    usePublicKeyStore();
   const { forceAddHolding } = useTokenStore();
   const { forceAddApy } = useApyStore();
-  const { setOpen } = useParseDialogStore();
   const { triggerRefresh } = useTriggerRefresh();
 
   useEffect(() => {
@@ -73,7 +55,6 @@ function Content() {
             );
           }
         }
-        setOpen(false);
         triggerRefresh();
       } catch (error) {
         console.error(error);
@@ -97,67 +78,12 @@ function Content() {
   }, [walletAddress]);
 
   return (
-    <div className="py-0">
-      <Input
-        placeholder="Enter wallet address"
-        value={walletAddress}
-        disabled={isLoading}
-        onChange={(event) => setWalletAddress(event.target.value)}
-      />
-      <p className="mt-4 text-xs text-muted-foreground">
-        Enter your wallet address for{" "}
-        <a
-          className="underline transition-colors hover:text-primary underline-offset-2 hover:decoration-primary/100 decoration-primary/25"
-          href="https://kamino.finance"
-          target="_blank"
-        >
-          Kamino
-        </a>{" "}
-        and we will parse all data for you
-      </p>
-    </div>
-  );
-}
-
-export function ParseDataDialog() {
-  const { open, setOpen } = useParseDialogStore();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-
-  const title = "Parse Data";
-  const description = "Automatically parse your Kamino data";
-
-  if (isDesktop) {
-    return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-            <DialogDescription className="flex items-center">
-              {description}
-            </DialogDescription>
-          </DialogHeader>
-          <Content />
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerContent>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>{title}</DrawerTitle>
-          <DrawerDescription className="flex items-center">
-            {description}
-          </DrawerDescription>
-        </DrawerHeader>
-
-        <DrawerFooter className="pt-2">
-          <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+    <Input
+      placeholder="Enter wallet address"
+      value={walletAddress}
+      disabled={isLoading}
+      onChange={(event) => setWalletAddress(event.target.value)}
+      className="relative bg-background focus-visible:ring-ring/50 disabled:text-muted disabled:placeholder:text-muted-foreground disabled:bg-black disabled:border-muted/80  disabled:opacity-100"
+    />
   );
 }

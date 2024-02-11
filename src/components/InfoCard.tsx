@@ -48,10 +48,10 @@ export function InfoCard() {
 
   return (
     <ScrollArea
-      customMaxWidth="max-h-[calc(100vh_-_80px)]"
-      className="rounded-xl"
+      customMaxWidth="max-h-[calc(100vh_-_68px)]"
+      className="md:rounded-xl"
     >
-      <Card className="shadow-xl w-fit">
+      <Card className="shadow-xl w-full md:w-fit">
         <CardContent className="px-0 py-0 overflow-y-auto">
           <div className="grid grid-cols-none grid-rows-2 md:grid-rows-none md:grid-cols-2">
             <div className="p-0 border-b md:border-r md:border-b-0 border-border ">
@@ -142,7 +142,7 @@ export function InfoCard() {
             </h2>
             {apyMap.length !== 0 ? (
               <ScrollArea>
-                <div className="grid grid-flow-row grid-cols-3 gap-2 place-items-start">
+                <div className="grid grid-flow-row grid-cols-1 md:grid-cols-3 gap-2 place-items-start">
                   {apyMap.map((a) => (
                     <div
                       key={a.token}
@@ -174,8 +174,8 @@ export function InfoCard() {
         </CardContent>
         <Divider />
         <CardFooter className="block px-0 space-y-2 text-sm">
-          <div className="grid grid-cols-2 px-6">
-            <div className="py-6 pr-4 space-y-2 border-r">
+          <div className="grid grid-cols-1 md:grid-cols-2 px-6">
+            <div className="py-6 pr-0 md:pr-4 space-y-2 border-r-0 border-b md:border-b-0 md:border-r">
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-muted-foreground">Daily Points</h2>
                 <span className="flex font-mono">
@@ -203,7 +203,7 @@ export function InfoCard() {
                 </span>
               </div>
             </div>
-            <div className="py-6 pl-4 space-y-2">
+            <div className="py-6 pl-0 md:pl-4 space-y-2">
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-muted-foreground">Total Supplied</h2>
                 <span className="flex font-mono">
