@@ -3,6 +3,10 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Kalc",
   description: "Playground for calculating Kamino Points",
+  openGraph: {
+    title: "Kalc",
+    description: "Playground for calculating Kamino Points",
+  },
 };
 
 export default function RootLayout({
