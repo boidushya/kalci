@@ -10,12 +10,19 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 export function ResetDialog() {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline">Reset</Button>
+        <Button
+          variant="outline"
+          className="h-9 md:w-fit w-9 md:px-4 md:py-2 py-0 px-0"
+        >
+          <span className="md:inline-block hidden">Reset</span>
+          <RefreshCw className="h-[1.2rem] w-[1.2rem] inline-block md:hidden" />
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

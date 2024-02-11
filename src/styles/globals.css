@@ -72,12 +72,14 @@
   }
   body {
     background-image: radial-gradient(
-      circle at 50% 10%,
-      hsl(var(--primary) / 0.05) 0%,
-      hsl(var(--background) / 0) 100%
-    );
+        circle at top left,
+        hsl(var(--primary) / 0.05) 0%,
+        hsl(var(--background) / 0.5) 50%
+      ),
+      url("/navy.png");
     @apply bg-background text-foreground;
   }
+
   /* Chrome, Safari, Edge, Opera */
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
