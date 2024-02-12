@@ -8,7 +8,6 @@ import {
   PROGRAM_ID,
   VanillaObligation,
   calculateAPYFromAPR,
-  calculateNewScore,
 } from "@hubbleprotocol/kamino-lending-sdk";
 
 const KAMINO_PUBLIC_KEY = "7u3HeHxYDLhnCoErrtycNokbQYbWGzLs6JSDqGAv5PfF";
