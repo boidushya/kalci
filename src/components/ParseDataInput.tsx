@@ -28,8 +28,10 @@ export function ParseDataDialog() {
             tokens.find((token) => token.name === position.ticker.toLowerCase())
           ) {
             const ticker = position.ticker.toLowerCase();
-            const adjustedAmount = Math.round(-100 * position.amount) / 100;
-            const adjustedAPY = Math.round(100 * position.APY) / 100;
+            // const adjustedAmount = Math.round(-100 * position.amount) / 100;
+            // const adjustedAPY = Math.round(100 * position.APY) / 100;
+            const adjustedAmount = -position.amount;
+            const adjustedAPY = position.APY;
 
             forceAddApy(ticker, adjustedAPY);
             forceAddHolding(ticker, adjustedAmount);
@@ -44,8 +46,10 @@ export function ParseDataDialog() {
             tokens.find((token) => token.name === position.ticker.toLowerCase())
           ) {
             const ticker = position.ticker.toLowerCase();
-            const adjustedAmount = Math.round(100 * position.amount) / 100;
-            const adjustedAPY = Math.round(100 * position.APY) / 100;
+            // const adjustedAmount = Math.round(100 * position.amount) / 100;
+            // const adjustedAPY = Math.round(100 * position.APY) / 100;
+            const adjustedAmount = position.amount;
+            const adjustedAPY = position.APY;
 
             forceAddApy(ticker, adjustedAPY);
             forceAddHolding(ticker, adjustedAmount);
