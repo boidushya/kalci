@@ -4,7 +4,6 @@ import {
   useApyStore,
   useTokenStore,
 } from "@/stores/TokenStore";
-import { only } from "node:test";
 
 const apyStore = useApyStore as unknown as { getState: () => IAPYStore };
 const apyStoreState = apyStore?.getState();
@@ -116,14 +115,14 @@ export const calculatePoints = (): number => {
 
   // scenario 1: only LSTs on both sides
   if (onlyLSTs) {
-    const supplyPoints = LSTs.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance * getTokenBoost(h.token, h.balance < 0)!, 0);
-    const borrowPoints = Math.abs(LSTs.filter((h) => h.balance < 0).reduce((acc, h) => acc + h.balance * getTokenBoost(h.token, h.balance < 0)!, 0));
+    const supplyPoints = LSTs.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1), 0);
+    const borrowPoints = Math.abs(LSTs.filter((h) => h.balance < 0).reduce((acc, h) => acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1), 0));
     return supplyPoints - borrowPoints;
   }
   // scenario 2: only stables on both sides
   if (onlyStables) {
-    const supplyPoints = stableTokens.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance * getTokenBoost(h.token, h.balance < 0)!, 0);
-    const borrowPoints = Math.abs(stableTokens.filter((h) => h.balance < 0).reduce((acc, h) => acc + h.balance * getTokenBoost(h.token, h.balance < 0)!, 0));
+    const supplyPoints = stableTokens.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1), 0);
+    const borrowPoints = Math.abs(stableTokens.filter((h) => h.balance < 0).reduce((acc, h) => acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1), 0));
     return supplyPoints - borrowPoints;
   }
   // scenario 3: lsts on either side, along with other tokens
@@ -141,7 +140,7 @@ export const calculatePoints = (): number => {
     }
   } else {
     LSTs.forEach((h) => {
-      LSTPoints += Math.abs(h.balance) * getTokenBoost(h.token, h.balance < 0)!;
+      LSTPoints += Math.abs(h.balance) * (getTokenBoost(h.token, h.balance < 0) || 1);
     });
   }
   // // scenario 4: stables on either side, along with other tokens
@@ -157,13 +156,13 @@ export const calculatePoints = (): number => {
     }
   } else {
     stableTokens.forEach((h) => {
-      stablePoints += Math.abs(h.balance) * getTokenBoost(h.token, h.balance < 0)!;
+      stablePoints += Math.abs(h.balance) * (getTokenBoost(h.token, h.balance < 0) || 1);
     });
   }
   // scenario 5: default
   let points = 0;
   otherTokens.forEach((h) => {
-    points += Math.abs(h.balance) * getTokenBoost(h.token, h.balance < 0)!;
+    points += Math.abs(h.balance) * (getTokenBoost(h.token, h.balance < 0) || 1);
   });
   const tot = points + LSTPoints + stablePoints;
   return tot;
