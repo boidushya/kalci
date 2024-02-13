@@ -4,6 +4,7 @@ import {
   useApyStore,
   useTokenStore,
 } from "@/stores/TokenStore";
+import { only } from "node:test";
 
 const apyStore = useApyStore as unknown as { getState: () => IAPYStore };
 const apyStoreState = apyStore?.getState();
@@ -13,35 +14,67 @@ const tokenStore = useTokenStore as unknown as { getState: () => ITokenStore };
 export const tokens = [
   {
     name: "usdc",
-    isSpecial: true,
+    boost_deposit: 3,
+    boost_borrow: 5,
+    borrow_factor: 1,
+    type: "stable",
+    // isSpecial: true,
   },
   {
     name: "usdt",
-    isSpecial: true,
+    boost_deposit: 3,
+    boost_borrow: 5,
+    borrow_factor: 1,
+    type: "stable",
+    // isSpecial: true,
   },
   {
     name: "usdh",
-    isSpecial: true,
+    boost_deposit: 3,
+    boost_borrow: 5,
+    borrow_factor: 1,
+    type: "stable",
+    // isSpecial: true,
   },
   {
     name: "uxd",
-    isSpecial: true,
+    boost_deposit: 1,
+    boost_borrow: 1,
+    borrow_factor: 1,
+    type: "stable",
+    // isSpecial: true,
   },
   {
     name: "sol",
-    isSpecial: true,
+    boost_deposit: 5,
+    boost_borrow: 3,
+    borrow_factor: 1.25,
+    type: "other",
+    // isSpecial: true,
   },
   {
     name: "bsol",
-    isSpecial: false,
+    boost_deposit: 1,
+    boost_borrow: 1,
+    borrow_factor: 1.25,
+    type: "lst",
+    // isSpecial: false,
   },
   {
     name: "jitosol",
-    isSpecial: false,
+    boost_deposit: 1,
+    boost_borrow: 1,
+    borrow_factor: 1.25,
+    type: "lst",
+    // isSpecial: false,
   },
   {
     name: "msol",
-    isSpecial: false,
+    boost_deposit: 1,
+    boost_borrow: 1,
+    borrow_factor: 1.25,
+    type: "lst",
+    // isSpecial: false,
   },
 ];
 
@@ -51,87 +84,94 @@ export const truncate = (str: string, n = 4) => {
     : str;
 };
 
-const calculateMultiplier = (
-  token: { name: string; isSpecial: boolean },
-  isBorrow: boolean
-) => {
-  if (token.isSpecial) {
-    return isBorrow ? 3 : 5;
-  }
-  return 1;
+export const getTokenType = (token: string) => {
+  const tokenInfo = tokens.find((t) => t.name === token);
+  return tokenInfo?.type;
+};
+
+export const getTokenBoost = (token: string, isBorrow: boolean) => {
+  const tokenInfo = tokens.find((t) => t.name === token);
+  return isBorrow ? tokenInfo?.boost_borrow : tokenInfo?.boost_deposit;
+}
+
+export const getBorrowFactor = (token: string) => {
+  const tokenInfo = tokens.find((t) => t.name === token);
+  return tokenInfo?.borrow_factor;
 };
 
 export const calculatePoints = (): number => {
-  const getApy = apyStoreState.getApy;
   const holdings = tokenStore?.getState().holdings;
+  // const netTotal = tokenStore?.getState().getTotalValue();
+  // const totalBorrows = holdings.filter((h) => h.balance < 0).reduce((acc, h) => acc + Math.abs(h.balance), 0);
+  const LSTs = holdings.filter((t) => getTokenType(t.token) === "lst");
+  const stableTokens = holdings.filter((t) => getTokenType(t.token) === "stable");
+  const otherTokens = holdings.filter((t) => getTokenType(t.token) === "other");
+  
+  const LSTSupplied = LSTs.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance, 0);
+  const LSTBorrowed = LSTs.filter((h) => h.balance < 0).reduce((acc, h) => acc + Math.abs(h.balance), 0);
+  const stableSupplied = stableTokens.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance, 0);
+  const stableBorrowed = stableTokens.filter((h) => h.balance < 0).reduce((acc, h) => acc + Math.abs(h.balance), 0);
+  const onlyLSTs = otherTokens.length === 0 && stableTokens.length === 0;
+  const onlyStables = otherTokens.length === 0 && LSTs.length === 0;
 
-  //   calculate points = (specialGroup) + (normalGroup)
-  //   specialTokenTotal = specialTokenSupply - specialTokenBorrow
-  //   specialGroup = calculateMultiplier(specialTokenTotal) * Math.abs(specialTokenTotal)
-
-  //   normalGroup = Math.abs(normalTokenSupply - normalTokenBorrow)
-
-  const specialTokenTotal = tokens
-    .filter((t) => t.isSpecial)
-    .reduce((acc, t) => {
-      const holding = holdings.find((h) => h.token === t.name);
-      if (!holding) return acc;
-      return acc + holding.balance;
-    }, 0);
-
-  const specialGroup =
-    (specialTokenTotal < 0 ? 3 : 5) * Math.abs(specialTokenTotal);
-
-  const normalGroup = holdings
-    .filter((h) => {
-      const token = tokens.find((t) => t.name === h.token);
-      return token && !token.isSpecial;
-    })
-    .reduce((acc, h) => {
-      return acc + Math.abs(h.balance);
-    }, 0);
-
-  return specialGroup + normalGroup;
-
-  return holdings.reduce((acc, h) => {
-    const token = tokens.find((t) => t.name === h.token);
-    if (!token) return acc;
-
-    const isBorrowing = h.balance < 0;
-    const multiplier = calculateMultiplier(token, isBorrowing);
-    const apy = getApy(h.token);
-
-    // I might be grossly wrong about this apyBoost calculation, pls fix lol
-
-    const apyBoost = 1 + apy / 100;
-    // const apyBoost = apy > 0 ? 1 : 1;
-
-    return acc + h.balance * multiplier * apyBoost;
-  }, 0);
-};
-
+  // scenario 1: only LSTs on both sides
+  if (onlyLSTs) {
+    const supplyPoints = LSTs.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance * getTokenBoost(h.token, h.balance < 0)!, 0);
+    const borrowPoints = Math.abs(LSTs.filter((h) => h.balance < 0).reduce((acc, h) => acc + h.balance * getTokenBoost(h.token, h.balance < 0)!, 0));
+    return supplyPoints - borrowPoints;
+  }
+  // scenario 2: only stables on both sides
+  if (onlyStables) {
+    const supplyPoints = stableTokens.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance * getTokenBoost(h.token, h.balance < 0)!, 0);
+    const borrowPoints = Math.abs(stableTokens.filter((h) => h.balance < 0).reduce((acc, h) => acc + h.balance * getTokenBoost(h.token, h.balance < 0)!, 0));
+    return supplyPoints - borrowPoints;
+  }
+  // scenario 3: lsts on either side, along with other tokens
+  let LSTPoints = 0;
+  let stablePoints = 0;
+  if (LSTSupplied > 0 && LSTBorrowed > 0) {
+    if (LSTSupplied > LSTBorrowed) {
+      const globalRate = 1;
+      const netValue = LSTSupplied - LSTBorrowed;
+      LSTPoints = netValue * globalRate;
+    } else {
+      const netValue = LSTBorrowed - LSTSupplied;
+      const globalRate = 1;
+      LSTPoints = netValue * globalRate;
+    }
+  } else {
+    LSTs.forEach((h) => {
+      LSTPoints += Math.abs(h.balance) * getTokenBoost(h.token, h.balance < 0)!;
+    });
+  }
+  // // scenario 4: stables on either side, along with other tokens
+  if (stableSupplied > 0 && stableBorrowed > 0) {
+    if (stableSupplied > stableBorrowed) {
+      const netValue = stableSupplied - stableBorrowed;
+      const globalRate = 3;
+      stablePoints = netValue * globalRate;
+    } else {
+      const netValue = stableBorrowed - stableSupplied;
+      const globalRate = 5;
+      stablePoints = netValue * globalRate;
+    }
+  } else {
+    stableTokens.forEach((h) => {
+      stablePoints += Math.abs(h.balance) * getTokenBoost(h.token, h.balance < 0)!;
+    });
+  }
+  // scenario 5: default
+  let points = 0;
+  otherTokens.forEach((h) => {
+    points += Math.abs(h.balance) * getTokenBoost(h.token, h.balance < 0)!;
+  });
+  const tot = points + LSTPoints + stablePoints;
+  return tot;
+}
 export const aggregatedMultiplier = () => {
-  const getApy = apyStoreState.getApy;
-  const holdings = tokenStore?.getState().holdings;
-
-  const totalValue = holdings.reduce((acc, h) => {
-    const token = tokens.find((t) => t.name === h.token);
-    if (!token) return acc;
-
-    const isBorrowing = h.balance < 0;
-    const multiplier = calculateMultiplier(token, isBorrowing);
-    const apy = getApy(h.token);
-
-    // I might be grossly wrong about this apyBoost calculation, pls fix lol
-
-    const apyBoost = apy > 0 ? 1 + ((isBorrowing ? 1 : -1) * apy) / 100 : 1;
-    // const apyBoost = apy > 0 ? 1 : 1;
-
-    return acc + h.balance * multiplier * apyBoost;
-  }, 0);
-
-  const totalSupply = holdings.reduce((acc, h) => acc + h.balance, 0);
-  return (totalValue / totalSupply).toFixed(1);
+  const points = calculatePoints();
+  const liquidity = tokenStore?.getState().getTotalValue();
+  return points / liquidity;
 };
 
 export const getTotalBorrowed = () => {
