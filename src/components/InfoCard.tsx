@@ -15,19 +15,25 @@ import { MinusIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
 import AnimatedNumbers from "react-animated-numbers";
+import { useDebounce as _useDebounce } from "use-debounce";
 
 const Divider = ({ className }: { className?: string }) => (
   <div className={cn("border-t border-border", className || "")} />
 );
 
+const useDebounce = (value: number, delay = 500) => _useDebounce(value, delay);
+
 export function InfoCard() {
   const { getTotalValue, holdings } = useTokenStore();
   const { apyMap, modifyApy, getApy } = useApyStore();
 
-  const liquidity = getTotalValue();
+  const [liquidity] = useDebounce(getTotalValue());
 
-  const totalSupplied = getTotalSupplied();
-  const totalBorrowed = getTotalBorrowed();
+  const [totalSupplied] = useDebounce(getTotalSupplied());
+  const [totalBorrowed] = useDebounce(getTotalBorrowed());
+
+  const [boost] = useDebounce(aggregatedMultiplier() || 0.0);
+  const [dailyPoints] = useDebounce(calculatePoints());
 
   const initialSupplyRows = holdings.filter((h) => h.balance > 0).length;
   const initialBorrowRows = holdings.filter((h) => h.balance < 0).length;
@@ -185,7 +191,7 @@ export function InfoCard() {
                       type: "spring",
                       duration: 0.2 + index * 0.1,
                     })}
-                    animateToNumber={calculatePoints()}
+                    animateToNumber={dailyPoints}
                   />
                 </span>
               </div>
@@ -198,7 +204,7 @@ export function InfoCard() {
                       type: "spring",
                       duration: 0.2 + index * 0.1,
                     })}
-                    animateToNumber={Number(aggregatedMultiplier()) || 0.0}
+                    animateToNumber={boost}
                   />
                 </span>
               </div>

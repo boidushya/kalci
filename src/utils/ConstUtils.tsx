@@ -91,7 +91,7 @@ export const getTokenType = (token: string) => {
 export const getTokenBoost = (token: string, isBorrow: boolean) => {
   const tokenInfo = tokens.find((t) => t.name === token);
   return isBorrow ? tokenInfo?.boost_borrow : tokenInfo?.boost_deposit;
-}
+};
 
 export const getBorrowFactor = (token: string) => {
   const tokenInfo = tokens.find((t) => t.name === token);
@@ -103,26 +103,62 @@ export const calculatePoints = (): number => {
   // const netTotal = tokenStore?.getState().getTotalValue();
   // const totalBorrows = holdings.filter((h) => h.balance < 0).reduce((acc, h) => acc + Math.abs(h.balance), 0);
   const LSTs = holdings.filter((t) => getTokenType(t.token) === "lst");
-  const stableTokens = holdings.filter((t) => getTokenType(t.token) === "stable");
+  const stableTokens = holdings.filter(
+    (t) => getTokenType(t.token) === "stable"
+  );
   const otherTokens = holdings.filter((t) => getTokenType(t.token) === "other");
-  
-  const LSTSupplied = LSTs.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance, 0);
-  const LSTBorrowed = LSTs.filter((h) => h.balance < 0).reduce((acc, h) => acc + Math.abs(h.balance), 0);
-  const stableSupplied = stableTokens.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance, 0);
-  const stableBorrowed = stableTokens.filter((h) => h.balance < 0).reduce((acc, h) => acc + Math.abs(h.balance), 0);
+
+  const LSTSupplied = LSTs.filter((h) => h.balance > 0).reduce(
+    (acc, h) => acc + h.balance,
+    0
+  );
+  const LSTBorrowed = LSTs.filter((h) => h.balance < 0).reduce(
+    (acc, h) => acc + Math.abs(h.balance),
+    0
+  );
+  const stableSupplied = stableTokens
+    .filter((h) => h.balance > 0)
+    .reduce((acc, h) => acc + h.balance, 0);
+  const stableBorrowed = stableTokens
+    .filter((h) => h.balance < 0)
+    .reduce((acc, h) => acc + Math.abs(h.balance), 0);
   const onlyLSTs = otherTokens.length === 0 && stableTokens.length === 0;
   const onlyStables = otherTokens.length === 0 && LSTs.length === 0;
 
   // scenario 1: only LSTs on both sides
   if (onlyLSTs) {
-    const supplyPoints = LSTs.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1), 0);
-    const borrowPoints = Math.abs(LSTs.filter((h) => h.balance < 0).reduce((acc, h) => acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1), 0));
+    const supplyPoints = LSTs.filter((h) => h.balance > 0).reduce(
+      (acc, h) =>
+        acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1),
+      0
+    );
+    const borrowPoints = Math.abs(
+      LSTs.filter((h) => h.balance < 0).reduce(
+        (acc, h) =>
+          acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1),
+        0
+      )
+    );
     return supplyPoints - borrowPoints;
   }
   // scenario 2: only stables on both sides
   if (onlyStables) {
-    const supplyPoints = stableTokens.filter((h) => h.balance > 0).reduce((acc, h) => acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1), 0);
-    const borrowPoints = Math.abs(stableTokens.filter((h) => h.balance < 0).reduce((acc, h) => acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1), 0));
+    const supplyPoints = stableTokens
+      .filter((h) => h.balance > 0)
+      .reduce(
+        (acc, h) =>
+          acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1),
+        0
+      );
+    const borrowPoints = Math.abs(
+      stableTokens
+        .filter((h) => h.balance < 0)
+        .reduce(
+          (acc, h) =>
+            acc + h.balance * (getTokenBoost(h.token, h.balance < 0) || 1),
+          0
+        )
+    );
     return supplyPoints - borrowPoints;
   }
   // scenario 3: lsts on either side, along with other tokens
@@ -140,7 +176,8 @@ export const calculatePoints = (): number => {
     }
   } else {
     LSTs.forEach((h) => {
-      LSTPoints += Math.abs(h.balance) * (getTokenBoost(h.token, h.balance < 0) || 1);
+      LSTPoints +=
+        Math.abs(h.balance) * (getTokenBoost(h.token, h.balance < 0) || 1);
     });
   }
   // // scenario 4: stables on either side, along with other tokens
@@ -156,17 +193,19 @@ export const calculatePoints = (): number => {
     }
   } else {
     stableTokens.forEach((h) => {
-      stablePoints += Math.abs(h.balance) * (getTokenBoost(h.token, h.balance < 0) || 1);
+      stablePoints +=
+        Math.abs(h.balance) * (getTokenBoost(h.token, h.balance < 0) || 1);
     });
   }
   // scenario 5: default
   let points = 0;
   otherTokens.forEach((h) => {
-    points += Math.abs(h.balance) * (getTokenBoost(h.token, h.balance < 0) || 1);
+    points +=
+      Math.abs(h.balance) * (getTokenBoost(h.token, h.balance < 0) || 1);
   });
   const tot = points + LSTPoints + stablePoints;
   return tot;
-}
+};
 export const aggregatedMultiplier = () => {
   const points = calculatePoints();
   const liquidity = tokenStore?.getState().getTotalValue();
