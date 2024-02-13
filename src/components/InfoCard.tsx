@@ -14,7 +14,6 @@ import { Input } from "./ui/input";
 import { MinusIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
-import AnimatedNumbers from "react-animated-numbers";
 import { useDebounce as _useDebounce } from "use-debounce";
 import Amount from "./ui/amount";
 
