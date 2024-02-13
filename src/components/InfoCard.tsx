@@ -193,7 +193,11 @@ export function InfoCard() {
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-muted-foreground">Boost</h2>
                 <span className="flex font-mono">
-                  <Amount value={boost} decimalPlaces={1} />
+                  <Amount
+                    value={boost}
+                    decimalPlaces={1}
+                    includeCommas={false}
+                  />
                 </span>
               </div>
             </div>

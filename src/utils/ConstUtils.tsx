@@ -17,7 +17,6 @@ export const tokens = [
     boost_borrow: 5,
     borrow_factor: 1,
     type: "stable",
-    // isSpecial: true,
   },
   {
     name: "usdt",
@@ -25,7 +24,6 @@ export const tokens = [
     boost_borrow: 5,
     borrow_factor: 1,
     type: "stable",
-    // isSpecial: true,
   },
   {
     name: "usdh",
@@ -33,7 +31,6 @@ export const tokens = [
     boost_borrow: 5,
     borrow_factor: 1,
     type: "stable",
-    // isSpecial: true,
   },
   {
     name: "uxd",
@@ -41,7 +38,6 @@ export const tokens = [
     boost_borrow: 1,
     borrow_factor: 1,
     type: "stable",
-    // isSpecial: true,
   },
   {
     name: "sol",
@@ -49,7 +45,6 @@ export const tokens = [
     boost_borrow: 3,
     borrow_factor: 1.25,
     type: "other",
-    // isSpecial: true,
   },
   {
     name: "bsol",
@@ -57,7 +52,6 @@ export const tokens = [
     boost_borrow: 1,
     borrow_factor: 1.25,
     type: "lst",
-    // isSpecial: false,
   },
   {
     name: "jitosol",
@@ -65,7 +59,6 @@ export const tokens = [
     boost_borrow: 1,
     borrow_factor: 1.25,
     type: "lst",
-    // isSpecial: false,
   },
   {
     name: "msol",
@@ -73,7 +66,6 @@ export const tokens = [
     boost_borrow: 1,
     borrow_factor: 1.25,
     type: "lst",
-    // isSpecial: false,
   },
 ];
 

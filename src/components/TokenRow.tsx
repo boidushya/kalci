@@ -18,6 +18,7 @@ import {
 import { tokens } from "@/utils/ConstUtils";
 import { useTokenStore } from "@/stores/TokenStore";
 import { Input } from "./ui/input";
+import { useDebounce } from "use-debounce";
 
 interface ITokenRowProps {
   isBorrow?: boolean;
@@ -28,15 +29,31 @@ export function TokenRow({
   isBorrow = false,
   dataKey,
 }: ITokenRowProps): React.ReactNode {
-  const { addHolding, modifyHolding, removeHolding, holdings, getBalance } =
-    useTokenStore();
+  const {
+    addHolding,
+    modifyHolding,
+    removeHolding,
+    holdings: _holdings,
+    getBalance,
+  } = useTokenStore();
+  const [holdings] = useDebounce(_holdings, 500);
 
-  const typeBasedHoldings = isBorrow
-    ? holdings.filter((h) => h.balance < 0)
-    : holdings.filter((h) => h.balance > 0);
+  const typeBasedHoldings = React.useMemo(
+    () =>
+      isBorrow
+        ? holdings.filter((h) => h.balance < 0)
+        : holdings.filter((h) => h.balance > 0),
+    [holdings, isBorrow]
+  );
 
-  const initialValue = typeBasedHoldings[dataKey]?.token || "";
-  const initialAmount = typeBasedHoldings[dataKey]?.balance || 0;
+  const initialValue = React.useMemo(
+    () => typeBasedHoldings[dataKey]?.token || "",
+    [dataKey, typeBasedHoldings]
+  );
+  const initialAmount = React.useMemo(
+    () => typeBasedHoldings[dataKey]?.balance || 0,
+    [dataKey, typeBasedHoldings]
+  );
 
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(initialValue);
