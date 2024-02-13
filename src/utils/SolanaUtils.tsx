@@ -85,10 +85,14 @@ const getBorrowPositions = async (
 ) => {
   const borrows = obligations.getBorrows();
 
+  console.log(market);
+
   const result = await Promise.all(
     borrows.map(async (borrow) => {
       const reserve = market.getReserveByAddress(borrow.reserveAddress);
       if (!reserve) throw new Error("Reserve not found");
+
+      console.log(reserve);
 
       const APR = reserve?.calculateBorrowAPR();
       const APY = calculateAPYFromAPR(APR) * 100;
