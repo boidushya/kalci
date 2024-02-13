@@ -24,7 +24,10 @@ function Amount({
   ...props
 }: IAmountProps) {
   const amount = includeCommas
-    ? Number(value.toFixed(2)).toLocaleString()
+    ? value.toLocaleString(undefined, {
+        minimumFractionDigits: decimalPlaces,
+        maximumFractionDigits: decimalPlaces,
+      })
     : value.toFixed(decimalPlaces);
   return (
     <AnimatePresence mode="wait" initial={false}>

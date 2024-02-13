@@ -24,8 +24,10 @@ const Divider = ({ className }: { className?: string }) => (
 const useDebounce = (value: number, delay = 500) => _useDebounce(value, delay);
 
 export function InfoCard() {
-  const { getTotalValue, holdings } = useTokenStore();
+  const { getTotalValue, holdings: _holdings } = useTokenStore();
   const { apyMap, modifyApy, getApy } = useApyStore();
+
+  const [holdings] = _useDebounce(_holdings, 500);
 
   const [liquidity] = useDebounce(getTotalValue());
 
@@ -191,7 +193,7 @@ export function InfoCard() {
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-muted-foreground">Boost</h2>
                 <span className="flex font-mono">
-                  <Amount value={boost} />
+                  <Amount value={boost} decimalPlaces={1} />
                 </span>
               </div>
             </div>

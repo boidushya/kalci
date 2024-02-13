@@ -263,7 +263,7 @@ export const getTotalDebt = () => {
     totalSupplied * (1 + suppliedAPY / 100) -
     totalBorrowed * (1 + borrowedAPY / 100);
 
-  return Number(totalDebt.toFixed(2));
+  return Number(totalDebt);
 };
 
 export const getTotalSupplied = () => {
