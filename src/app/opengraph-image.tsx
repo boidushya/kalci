@@ -39,7 +39,7 @@ const GET = async () => {
             transform: "rotate(-6deg)",
           }}
         >
-          ⚖️ Kalci - A Kamino Playground
+          ⚖️ Kalci - A Defi Sandbox for Kamino
         </div>
       </div>
     ) as React.ReactElement,
