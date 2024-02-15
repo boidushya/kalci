@@ -16,6 +16,7 @@ export interface ITokenStore {
   addHolding: (token: string, balance: number) => void;
   forceAddHolding: (token: string, balance: number) => void;
   removeHolding: (token: string) => void;
+  resetHoldings: () => void;
   modifyHolding: (token: string, balance: number) => void;
   getTotalValue: () => number;
   getBalance: (token: string) => number;
@@ -26,6 +27,7 @@ export interface IAPYStore {
   getApy: (token: string) => number;
   forceAddApy: (token: string, apy: number) => void;
   modifyApy: (token: string, apy?: number) => void;
+  resetApys: () => void;
 }
 
 export const useApyStore: () => IAPYStore = create<IAPYStore>()(
@@ -62,6 +64,10 @@ export const useApyStore: () => IAPYStore = create<IAPYStore>()(
             };
           });
         },
+        resetApys: () =>
+          set(() => ({
+            apyMap: [],
+          })),
       }),
       {
         name: "KM::ApyStore",
@@ -98,6 +104,10 @@ export const useTokenStore: () => ITokenStore = create<ITokenStore>()(
         removeHolding: (token: string) =>
           set((state) => ({
             holdings: state.holdings.filter((h) => h.token !== token),
+          })),
+        resetHoldings: () =>
+          set(() => ({
+            holdings: [],
           })),
         modifyHolding: (token: string, balance: number) =>
           set((state) => ({

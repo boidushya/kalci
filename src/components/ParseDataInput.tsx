@@ -11,8 +11,8 @@ export function ParseDataDialog() {
 
   const { value: walletAddress, setValue: setWalletAddress } =
     usePublicKeyStore();
-  const { forceAddHolding } = useTokenStore();
-  const { forceAddApy } = useApyStore();
+  const { forceAddHolding, resetHoldings } = useTokenStore();
+  const { forceAddApy, resetApys } = useApyStore();
   const { triggerRefresh } = useTriggerRefresh();
 
   useEffect(() => {
@@ -21,6 +21,9 @@ export function ParseDataDialog() {
         setIsLoading(true);
 
         const data = await getKaminoData(walletAddress);
+        resetHoldings();
+
+        resetApys();
 
         const { borrowPositions, depositPositions } = data;
         for (const position of borrowPositions) {

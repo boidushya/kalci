@@ -14,20 +14,28 @@ import { Input } from "./ui/input";
 import { MinusIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
-import AnimatedNumbers from "react-animated-numbers";
+import { useDebounce as _useDebounce } from "use-debounce";
+import Amount from "./ui/amount";
 
 const Divider = ({ className }: { className?: string }) => (
   <div className={cn("border-t border-border", className || "")} />
 );
 
+const useDebounce = (value: number, delay = 500) => _useDebounce(value, delay);
+
 export function InfoCard() {
-  const { getTotalValue, holdings } = useTokenStore();
+  const { getTotalValue, holdings: _holdings } = useTokenStore();
   const { apyMap, modifyApy, getApy } = useApyStore();
 
-  const liquidity = getTotalValue();
+  const [holdings] = _useDebounce(_holdings, 500);
 
-  const totalSupplied = getTotalSupplied();
-  const totalBorrowed = getTotalBorrowed();
+  const [liquidity] = useDebounce(getTotalValue());
+
+  const [totalSupplied] = useDebounce(getTotalSupplied());
+  const [totalBorrowed] = useDebounce(getTotalBorrowed());
+
+  const [boost] = useDebounce(aggregatedMultiplier() || 0.0);
+  const [dailyPoints] = useDebounce(calculatePoints());
 
   const initialSupplyRows = holdings.filter((h) => h.balance > 0).length;
   const initialBorrowRows = holdings.filter((h) => h.balance < 0).length;
@@ -175,61 +183,35 @@ export function InfoCard() {
         <Divider />
         <CardFooter className="block px-0 space-y-2 text-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 px-6">
-            <div className="py-6 pr-0 md:pr-4 space-y-2 border-r-0 border-b md:border-b-0 md:border-r">
+            <div className="py-6 pr-0 md:pr-4 space-y-2 border-r-0 border-b md:border-b-0 md:border-r overflow-x-hidden">
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-muted-foreground">Daily Points</h2>
                 <span className="flex font-mono">
-                  <AnimatedNumbers
-                    includeComma
-                    transitions={(index) => ({
-                      type: "spring",
-                      duration: 0.2 + index * 0.1,
-                    })}
-                    animateToNumber={calculatePoints()}
-                  />
+                  <Amount value={dailyPoints} />
                 </span>
               </div>
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-muted-foreground">Boost</h2>
                 <span className="flex font-mono">
-                  <AnimatedNumbers
-                    includeComma
-                    transitions={(index) => ({
-                      type: "spring",
-                      duration: 0.2 + index * 0.1,
-                    })}
-                    animateToNumber={Number(aggregatedMultiplier()) || 0.0}
+                  <Amount
+                    value={boost}
+                    decimalPlaces={1}
+                    includeCommas={false}
                   />
                 </span>
               </div>
             </div>
-            <div className="py-6 pl-0 md:pl-4 space-y-2">
+            <div className="py-6 pl-0 md:pl-4 space-y-2 overflow-x-hidden">
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-muted-foreground">Total Supplied</h2>
                 <span className="flex font-mono">
-                  $
-                  <AnimatedNumbers
-                    includeComma
-                    transitions={(index) => ({
-                      type: "spring",
-                      duration: 0.2 + index * 0.1,
-                    })}
-                    animateToNumber={totalSupplied}
-                  />
+                  <Amount value={totalSupplied} includeDollar />
                 </span>
               </div>
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-muted-foreground">Total Borrowed</h2>
                 <span className="flex font-mono">
-                  $
-                  <AnimatedNumbers
-                    includeComma
-                    transitions={(index) => ({
-                      type: "spring",
-                      duration: 0.2 + index * 0.1,
-                    })}
-                    animateToNumber={totalBorrowed}
-                  />
+                  <Amount value={totalBorrowed} includeDollar />
                 </span>
               </div>
             </div>
@@ -238,15 +220,7 @@ export function InfoCard() {
           <div className="flex items-center justify-between w-full px-6 pt-4 text-base">
             <h2 className="text-muted-foreground">Total Available Liquidity</h2>
             <span className="flex font-mono">
-              $
-              <AnimatedNumbers
-                includeComma
-                transitions={(index) => ({
-                  type: "spring",
-                  duration: 0.2 + index * 0.1,
-                })}
-                animateToNumber={liquidity}
-              />
+              <Amount value={liquidity} includeDollar />
             </span>
           </div>
         </CardFooter>
