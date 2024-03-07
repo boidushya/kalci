@@ -27,6 +27,30 @@ const getPriceData = async (token: string) => {
   }
 };
 
+const getUserPointsData = async (publicKey: string) => {
+  try {
+    const apiURL = `https://api.hubbleprotocol.io/points/users/${publicKey}/breakdown`;
+    const response = await fetch(apiURL);
+    const data = await response.json();
+
+    return data;
+  } catch (e) {
+    throw new Error("User points data not found for address: " + publicKey);
+  }
+}
+
+const getTotalPointsData = async () => {
+  try {
+    const apiURL = `https://api.hubbleprotocol.io/points/metrics`;
+    const response = await fetch(apiURL);
+    const data = await response.json();
+
+    return data;
+  } catch (e) {
+    throw new Error("Total points data not found");
+  }
+}
+
 const getConnection = () => {
   const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL;
   if (!RPC_URL) {
@@ -127,6 +151,8 @@ export const getKaminoData = async (publicKey: string) => {
   }
 
   const obligations = await getObligations(publicKey, market);
+  const userPointsData = await getUserPointsData(publicKey);
+  const totalPointsData = await getTotalPointsData();
 
   const borrowPositions = await getBorrowPositions(obligations, market);
   const depositPositions = await getDepositPositions(obligations, market);
@@ -134,5 +160,7 @@ export const getKaminoData = async (publicKey: string) => {
   return {
     borrowPositions,
     depositPositions,
+    userPointsData,
+    totalPointsData,
   };
 };

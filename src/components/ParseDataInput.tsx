@@ -1,4 +1,4 @@
-import { usePublicKeyStore, useTriggerRefresh } from "@/stores/StateStore";
+import { usePublicKeyStore, useTriggerRefresh, usePointsStore } from "@/stores/StateStore";
 import { useEffect, useState } from "react";
 import { getKaminoData } from "@/utils/SolanaUtils";
 import { Input } from "./ui/input";
@@ -12,6 +12,7 @@ export function ParseDataDialog() {
   const { value: walletAddress, setValue: setWalletAddress } =
     usePublicKeyStore();
   const { forceAddHolding, resetHoldings } = useTokenStore();
+  const { setTotalPoints, setUserPoints } = usePointsStore();
   const { forceAddApy, resetApys } = useApyStore();
   const { triggerRefresh } = useTriggerRefresh();
 
@@ -22,10 +23,11 @@ export function ParseDataDialog() {
 
         const data = await getKaminoData(walletAddress);
         resetHoldings();
-
         resetApys();
 
-        const { borrowPositions, depositPositions } = data;
+        const { borrowPositions, depositPositions, userPointsData, totalPointsData } = data;
+        setTotalPoints(Number (totalPointsData.totalPointsEarned));
+        setUserPoints(Number (userPointsData.totalPointsEarned));
         for (const position of borrowPositions) {
           if (
             tokens.find((token) => token.name === position.ticker.toLowerCase())

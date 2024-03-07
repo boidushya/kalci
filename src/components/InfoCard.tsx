@@ -6,6 +6,8 @@ import {
   calculatePoints,
   getTotalBorrowed,
   getTotalSupplied,
+  calculateAirdrop,
+  calculateAirdropUSD,
 } from "@/utils/ConstUtils";
 import { Button } from "./ui/button";
 import { PlusIcon } from "@radix-ui/react-icons";
@@ -16,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
 import { useDebounce as _useDebounce } from "use-debounce";
 import Amount from "./ui/amount";
+import { usePublicKeyStore } from "@/stores/StateStore";
 
 const Divider = ({ className }: { className?: string }) => (
   <div className={cn("border-t border-border", className || "")} />
@@ -27,12 +30,19 @@ export function InfoCard() {
   const { getTotalValue, holdings: _holdings } = useTokenStore();
   const { apyMap, modifyApy, getApy } = useApyStore();
 
+  const publicKey = usePublicKeyStore();
+
   const [holdings] = _useDebounce(_holdings, 500);
 
   const [liquidity] = useDebounce(getTotalValue());
 
+  const [approximateAirdropTokenValue, setApproximateAirdropTokenValue] = React.useState(0.3);
+
   const [totalSupplied] = useDebounce(getTotalSupplied());
   const [totalBorrowed] = useDebounce(getTotalBorrowed());
+
+  const [totalAirdrop, setTotalAirdrop] = React.useState(0);
+  const [totalAirdropUSD, setTotalAirdropUSD] = React.useState(0);
 
   const [boost] = useDebounce(aggregatedMultiplier() || 0.0);
   const [dailyPoints] = useDebounce(calculatePoints());
@@ -53,6 +63,14 @@ export function InfoCard() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [holdings]);
+
+  React.useEffect(() => {
+    if (publicKey.value) {
+      setTotalAirdrop(calculateAirdrop());
+      setTotalAirdropUSD(calculateAirdropUSD(approximateAirdropTokenValue));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publicKey.value]);
 
   return (
     <ScrollArea
@@ -216,6 +234,44 @@ export function InfoCard() {
               </div>
             </div>
           </div>
+          <Divider />
+          {publicKey.value ? (
+            <div className="flex items-center justify-between w-full px-6 pt-4 pb-4 text-base">
+              <div className="flex items-center justify-between px-4 py-2 pr-2 text-sm mb-2 border">
+                <h2 className="">$KMNO</h2>
+                <div className="flex items-center justify-center gap-2 pl-6">
+                  $
+                  <Input
+                    type="number"
+                    placeholder="$KNMO"
+                    value={approximateAirdropTokenValue}
+                    onChange={(e) =>
+                      setApproximateAirdropTokenValue(Number(e.target.value))
+                    }
+                    className="w-16 h-8 text-right"
+                  />
+                </div>
+              </div>
+              <span className="w-full px-4 text-center">
+                <p className="text-muted-foreground text-bg">
+                  Approximate Airdrop
+                </p>
+              </span>
+
+              <div className="flex font-mono text-right flex-col">
+                <div className="flex justify-end gap-2">
+                  <Amount value={totalAirdrop} /> $KMNO
+                </div>
+                <Amount value={totalAirdropUSD} includeDollar />
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between w-full px-6 pt-4 pb-4 text-base">
+              <span className="w-full text-muted-foreground text-center">
+                Enter an address to calculate airdrop
+              </span>
+            </div>
+          )}
           <Divider className="!my-0" />
           <div className="flex items-center justify-between w-full px-6 pt-4 text-base">
             <h2 className="text-muted-foreground">Total Available Liquidity</h2>
