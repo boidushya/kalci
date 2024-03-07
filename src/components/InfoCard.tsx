@@ -37,7 +37,8 @@ export function InfoCard() {
 
   const [liquidity] = useDebounce(getTotalValue());
 
-  const [approximateAirdropTokenValue, setApproximateAirdropTokenValue] = React.useState(0.3);
+  const [approximateAirdropTokenValue, setApproximateAirdropTokenValue] =
+    React.useState(0.3);
 
   const [totalSupplied] = useDebounce(getTotalSupplied());
   const [totalBorrowed] = useDebounce(getTotalBorrowed());
@@ -75,7 +76,7 @@ export function InfoCard() {
 
   React.useEffect(() => {
     if (publicKey.value) {
-      setApproximateAirdropTokenValue (calculateTokenPrice());
+      setApproximateAirdropTokenValue(calculateTokenPrice());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publicKey.value]);
@@ -207,9 +208,9 @@ export function InfoCard() {
           </div>
         </CardContent>
         <Divider />
-        <CardFooter className="block px-0 space-y-2 text-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 px-6">
-            <div className="py-6 pr-0 md:pr-4 space-y-2 border-r-0 border-b md:border-b-0 md:border-r overflow-x-hidden">
+        <CardFooter className="block px-0 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 md:px-6 px-0">
+            <div className="py-6 md:pr-4 space-y-2 border-r-0 border-b md:border-b-0 md:border-r overflow-x-hidden md:px-0 px-6">
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-muted-foreground">Daily Points</h2>
                 <span className="flex font-mono">
@@ -227,7 +228,7 @@ export function InfoCard() {
                 </span>
               </div>
             </div>
-            <div className="py-6 pl-0 md:pl-4 space-y-2 overflow-x-hidden">
+            <div className="py-6 pl-6 md:pr-0 pr-6 md:pl-4 space-y-2 overflow-x-hidden">
               <div className="flex items-center justify-between w-full">
                 <h2 className="text-muted-foreground">Total Supplied</h2>
                 <span className="flex font-mono">
@@ -242,47 +243,59 @@ export function InfoCard() {
               </div>
             </div>
           </div>
-          <Divider />
+          <Divider className="m-0" />
           {publicKey.value ? (
-            <div className="flex md:flex-row flex-col md:items-center items-left justify-between w-full px-6 pt-4 pb-4 text-base">
-              <div className="flex items-center justify-between px-4 py-2 pr-2 text-sm mb-2 border">
-                <h2 className="">$KMNO</h2>
-                <div className="flex items-center justify-center gap-2 pl-6">
-                  $
-                  <Input
-                    type="number"
-                    placeholder="$KNMO"
-                    value={approximateAirdropTokenValue}
-                    onChange={(e) =>
-                      setApproximateAirdropTokenValue(Number(e.target.value))
-                    }
-                    className="w-16 h-8 text-right"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row">
-                <span className="w-full md:px-8 md:py-0 py-2 md:text-center text-left">
-                  <p className="text-foreground text-bg">
+            <div>
+              <div className="flex md:flex-row flex-col items-left justify-between w-full px-6 pt-4 pb-4 text-base my-0 md:my-2">
+                <div className="w-full md:py-0 py-2 text-left max-w-[30rem]">
+                  <p className="text-foreground text-bg md:text-inherit text-lg">
                     Approximate Airdrop
                   </p>
-                  <p className="text-muted-foreground text-sm">
-                    Default $KMNO price calculated based on the average point price on whales.market
+                  <p className="text-muted-foreground text-xs md:text-sm">
+                    Default $KMNO price calculated based on the average point
+                    price on{" "}
+                    <a
+                      href="https://whales.market"
+                      target="_blank"
+                      className="underline hover:text-foreground transition-colors"
+                    >
+                      whales.market.
+                    </a>{" "}
+                    However you can adjust the price below.
                   </p>
-                </span>
-
-                <div className="flex font-mono md:text-right text-left flex-col md:py-2 py-2">
-                  <div className="flex md:justify-end gap-2">
-                    <Amount value={totalAirdrop} /> $KMNO
+                </div>
+                <div className="flex flex-row">
+                  <div className="flex font-mono text-right md:flex-col flex-row md:mt-0 my-4 md:text-sm text-base">
+                    <div className="flex md:justify-end gap-2 font-semibold overflow-hidden ">
+                      <Amount value={totalAirdrop} /> $KMNO
+                    </div>
+                    <span className="text-muted-foreground flex flex-row justify-end overflow-hidden">
+                      (<Amount value={totalAirdropUSD} includeDollar />)
+                    </span>
                   </div>
-                  <span className="text-muted-foreground flex flex-row justify-end text-sm">
-                    (<Amount value={totalAirdropUSD} includeDollar />)
-                  </span>
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between px-6 py-2 pr-2 text-sm border-t">
+                  <h2 className="">$KMNO</h2>
+                  <div className="flex items-center justify-center gap-2 pr-2">
+                    $
+                    <Input
+                      type="number"
+                      placeholder="$KNMO"
+                      value={approximateAirdropTokenValue}
+                      onChange={(e) =>
+                        setApproximateAirdropTokenValue(Number(e.target.value))
+                      }
+                      className="w-24 h-8 text-right "
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-between w-full px-6 pt-4 pb-4 text-base">
-              <span className="w-full text-muted-foreground text-center">
+            <div className="flex items-center justify-between w-full px-6 py-4 text-base">
+              <span className="w-full text-muted-foreground">
                 Enter an address to calculate airdrop
               </span>
             </div>
