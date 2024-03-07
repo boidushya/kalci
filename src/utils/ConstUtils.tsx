@@ -287,7 +287,6 @@ export const calculateAirdropUSD = (approxValueOfKMNO: number) => {
 };
 
 export const calculateTokenPrice = () => {
-  const points = pointsStore?.getState().userPoints;
   const totalPoints = pointsStore?.getState().totalPoints;
   const pricePerPoint = pointsStore?.getState().pricePerPoint;
   const totalAirdrop = 700_000_000;

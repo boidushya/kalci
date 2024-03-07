@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kalci.xyz"),
@@ -48,6 +49,9 @@ export default function RootLayout({
       <body>
         <div id="root">{children}</div>
       </body>
+      <GoogleAnalytics
+        gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS as string}
+      />
     </html>
   );
 }
