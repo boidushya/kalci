@@ -1,3 +1,4 @@
+import { IPointsStore, usePointsStore } from "@/stores/StateStore";
 import {
   IAPYStore,
   ITokenStore,
@@ -9,6 +10,8 @@ const apyStore = useApyStore as unknown as { getState: () => IAPYStore };
 const apyStoreState = apyStore?.getState();
 
 const tokenStore = useTokenStore as unknown as { getState: () => ITokenStore };
+
+const pointsStore = usePointsStore as unknown as { getState: () => IPointsStore };
 
 export const tokens = [
   {
@@ -267,4 +270,27 @@ export const getTotalSupplied = () => {
     }
     return acc;
   }, 0);
+};
+
+export const calculateAirdrop = () => {
+  const points = pointsStore?.getState().userPoints || calculatePoints ();
+  const totalPoints = pointsStore?.getState().totalPoints;
+  const totalAirdrop = 700_000_000;
+  const userPercentage = points / totalPoints;
+  const userAirdrop = userPercentage * totalAirdrop;
+  return userAirdrop;
+};
+
+export const calculateAirdropUSD = (approxValueOfKMNO: number) => {
+  const airdrop = calculateAirdrop();
+  return airdrop * approxValueOfKMNO;
+};
+
+export const calculateTokenPrice = () => {
+  const totalPoints = pointsStore?.getState().totalPoints;
+  const pricePerPoint = pointsStore?.getState().pricePerPoint;
+  const totalAirdrop = 700_000_000;
+  const tokensPerPoint = totalAirdrop / totalPoints;
+  const priceOfToken = pricePerPoint / tokensPerPoint;
+  return priceOfToken;
 };
