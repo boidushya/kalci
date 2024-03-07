@@ -12,7 +12,7 @@ export function ParseDataDialog() {
   const { value: walletAddress, setValue: setWalletAddress } =
     usePublicKeyStore();
   const { forceAddHolding, resetHoldings } = useTokenStore();
-  const { setTotalPoints, setUserPoints } = usePointsStore();
+  const { setTotalPoints, setUserPoints, setPricePerPoint } = usePointsStore();
   const { forceAddApy, resetApys } = useApyStore();
   const { triggerRefresh } = useTriggerRefresh();
 
@@ -25,9 +25,10 @@ export function ParseDataDialog() {
         resetHoldings();
         resetApys();
 
-        const { borrowPositions, depositPositions, userPointsData, totalPointsData } = data;
+        const { borrowPositions, depositPositions, userPointsData, totalPointsData, averagePricePerPoint } = data;
         setTotalPoints(Number (totalPointsData.totalPointsEarned));
         setUserPoints(Number (userPointsData.totalPointsEarned));
+        setPricePerPoint(averagePricePerPoint);
         for (const position of borrowPositions) {
           if (
             tokens.find((token) => token.name === position.ticker.toLowerCase())

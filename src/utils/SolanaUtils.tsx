@@ -39,6 +39,22 @@ const getUserPointsData = async (publicKey: string) => {
   }
 }
 
+const getWhalesMarketData = async () => {
+  try {
+    const apiURL = `https://api.whales.market/tokens/token-preview?ids=efb29bef-8b97-4b72-b2b1-2448fb8e3429`;
+    const response = await fetch(apiURL);
+    const { data } = await response.json();
+    
+    const averageBid = data[0].average_bids;
+    const averageAsk = data[0].average_asks;
+
+    const averagePricePerPoint = (averageBid + averageAsk) / 2;
+    return averagePricePerPoint;
+  } catch (e) {
+    throw new Error("Whales market data not found");
+  }
+}
+
 const getTotalPointsData = async () => {
   try {
     const apiURL = `https://api.hubbleprotocol.io/points/metrics`;
@@ -153,6 +169,7 @@ export const getKaminoData = async (publicKey: string) => {
   const obligations = await getObligations(publicKey, market);
   const userPointsData = await getUserPointsData(publicKey);
   const totalPointsData = await getTotalPointsData();
+  const averagePricePerPoint = await getWhalesMarketData();
 
   const borrowPositions = await getBorrowPositions(obligations, market);
   const depositPositions = await getDepositPositions(obligations, market);
@@ -162,5 +179,6 @@ export const getKaminoData = async (publicKey: string) => {
     depositPositions,
     userPointsData,
     totalPointsData,
+    averagePricePerPoint,
   };
 };

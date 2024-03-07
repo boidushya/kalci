@@ -276,9 +276,6 @@ export const calculateAirdrop = () => {
   const points = pointsStore?.getState().userPoints || calculatePoints ();
   const totalPoints = pointsStore?.getState().totalPoints;
   const totalAirdrop = 700_000_000;
-  // calculate what percentage of the total points the user has
-  // multiply that by the total airdrop amount
-  // return that amount
   const userPercentage = points / totalPoints;
   const userAirdrop = userPercentage * totalAirdrop;
   return userAirdrop;
@@ -287,4 +284,14 @@ export const calculateAirdrop = () => {
 export const calculateAirdropUSD = (approxValueOfKMNO: number) => {
   const airdrop = calculateAirdrop();
   return airdrop * approxValueOfKMNO;
+};
+
+export const calculateTokenPrice = () => {
+  const points = pointsStore?.getState().userPoints;
+  const totalPoints = pointsStore?.getState().totalPoints;
+  const pricePerPoint = pointsStore?.getState().pricePerPoint;
+  const totalAirdrop = 700_000_000;
+  const tokensPerPoint = totalAirdrop / totalPoints;
+  const priceOfToken = pricePerPoint / tokensPerPoint;
+  return priceOfToken;
 };

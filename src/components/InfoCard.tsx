@@ -8,6 +8,7 @@ import {
   getTotalSupplied,
   calculateAirdrop,
   calculateAirdropUSD,
+  calculateTokenPrice,
 } from "@/utils/ConstUtils";
 import { Button } from "./ui/button";
 import { PlusIcon } from "@radix-ui/react-icons";
@@ -68,6 +69,13 @@ export function InfoCard() {
     if (publicKey.value) {
       setTotalAirdrop(calculateAirdrop());
       setTotalAirdropUSD(calculateAirdropUSD(approximateAirdropTokenValue));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publicKey.value, approximateAirdropTokenValue]);
+
+  React.useEffect(() => {
+    if (publicKey.value) {
+      setApproximateAirdropTokenValue (calculateTokenPrice());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publicKey.value]);
@@ -236,7 +244,7 @@ export function InfoCard() {
           </div>
           <Divider />
           {publicKey.value ? (
-            <div className="flex items-center justify-between w-full px-6 pt-4 pb-4 text-base">
+            <div className="flex md:flex-row flex-col md:items-center items-left justify-between w-full px-6 pt-4 pb-4 text-base">
               <div className="flex items-center justify-between px-4 py-2 pr-2 text-sm mb-2 border">
                 <h2 className="">$KMNO</h2>
                 <div className="flex items-center justify-center gap-2 pl-6">
@@ -252,17 +260,24 @@ export function InfoCard() {
                   />
                 </div>
               </div>
-              <span className="w-full px-4 text-center">
-                <p className="text-muted-foreground text-bg">
-                  Approximate Airdrop
-                </p>
-              </span>
+              <div className="flex flex-row">
+                <span className="w-full md:px-8 md:py-0 py-2 md:text-center text-left">
+                  <p className="text-foreground text-bg">
+                    Approximate Airdrop
+                  </p>
+                  <p className="text-muted-foreground text-sm">
+                    Default $KMNO price calculated based on the average point price on whales.market
+                  </p>
+                </span>
 
-              <div className="flex font-mono text-right flex-col">
-                <div className="flex justify-end gap-2">
-                  <Amount value={totalAirdrop} /> $KMNO
+                <div className="flex font-mono md:text-right text-left flex-col md:py-2 py-2">
+                  <div className="flex md:justify-end gap-2">
+                    <Amount value={totalAirdrop} /> $KMNO
+                  </div>
+                  <span className="text-muted-foreground flex flex-row justify-end text-sm">
+                    (<Amount value={totalAirdropUSD} includeDollar />)
+                  </span>
                 </div>
-                <Amount value={totalAirdropUSD} includeDollar />
               </div>
             </div>
           ) : (
